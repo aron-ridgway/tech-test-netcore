@@ -11,8 +11,15 @@
 
 <div class="col-md-6">
 
-    <ul class="list-group">
+    @* This might be better as an ajax call or client side toggle with javascript *@
+    <form method="get" asp-controller="TodoList" asp-action="Detail">
+        <input type="checkbox" id="hideDone" name="hideDone" value="true" data-val="true" @(Model.HideDone ? "checked" : "") onchange="this.form.submit()" />
+        <label for="hideDone">Hide Done Items</label>
+        <input name="TodoListId" type="hidden" value="@Model.TodoListId">
+    </form>
 
+    <ul class="list-group">
+        
         <li class="list-group-item">
             <a asp-action="Create" asp-controller="TodoItem" asp-route-todoListId="@Model.TodoListId">
                 <strong>Add New Item</strong>
