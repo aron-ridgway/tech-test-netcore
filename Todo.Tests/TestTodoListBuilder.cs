@@ -12,7 +12,8 @@ namespace Todo.Tests
     {
         private readonly string title;
         private readonly IdentityUser owner;
-        private readonly List<(string, Importance)> items = new List<(string, Importance)>();
+        private readonly List<(string, Importance)> items = new();
+        private readonly List<(string, int)> rankedItems = new();
 
         public TestTodoListBuilder(IdentityUser owner, string title)
         {
@@ -26,10 +27,17 @@ namespace Todo.Tests
             return this;
         }
 
+        public TestTodoListBuilder WithItemAndRank(string itemTitle, int rank)
+        {
+            rankedItems.Add((itemTitle, rank));
+            return this;
+        }
+
         public TodoList Build()
         {
             var todoList = new TodoList(owner, title);
-            var todoItems = items.Select(itm => new TodoItem(todoList.TodoListId, owner.Id, itm.Item1, itm.Item2, owner));
+            var todoItems = items.Select(itm => new TodoItem(todoList.TodoListId, owner.Id, itm.Item1, itm.Item2, owner)).ToList();
+            todoItems.AddRange(rankedItems.Select(itm => new TodoItem(todoList.TodoListId, owner.Id, itm.Item1, Importance.Medium, owner, itm.Item2)));
             todoItems.ToList().ForEach(tlItm =>
             {
                 todoList.Items.Add(tlItm);

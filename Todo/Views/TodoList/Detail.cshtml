@@ -11,10 +11,14 @@
 
 <div class="col-md-6">
 
-    @* This might be better as an ajax call or client side toggle with javascript *@
+    @* These would be better as an ajax call or client side filtering/sorting with javascript *@
     <form method="get" asp-controller="TodoList" asp-action="Detail">
         <input type="checkbox" id="hideDone" name="hideDone" value="true" data-val="true" @(Model.HideDone ? "checked" : "") onchange="this.form.submit()" />
         <label for="hideDone">Hide Done Items</label>
+
+        <input type="checkbox" id="sortByRank" name="sortByRank" value="true" data-val="true" @(Model.SortByRank ? "checked" : "") onchange="this.form.submit()" />
+        <label for="sortByRank">Sort By Rank</label>
+
         <input name="TodoListId" type="hidden" value="@Model.TodoListId">
     </form>
 

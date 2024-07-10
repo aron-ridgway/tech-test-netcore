@@ -32,7 +32,7 @@ namespace Todo.Controllers
             return View(viewmodel);
         }
 
-        public IActionResult Detail(int todoListId, bool hideDone)
+        public IActionResult Detail(int todoListId, bool hideDone, bool sortByRank)
         {
             var todoList = dbContext.SingleTodoList(todoListId);
 
@@ -40,8 +40,10 @@ namespace Todo.Controllers
                 ? todoList.Items.Where(w => w.IsDone != true).ToList()
                 : todoList.Items;
 
-            var viewmodel = TodoListDetailViewmodelFactory.Create(todoList);
+            var viewmodel = TodoListDetailViewmodelFactory.Create(todoList, sortByRank);
+
             viewmodel.HideDone = hideDone;
+            viewmodel.SortByRank = sortByRank;
 
             return View(viewmodel);
         }
