@@ -15,6 +15,7 @@ namespace Todo.Api.Controllers
         }
 
         [HttpGet]
+        [ResponseCache(Duration = 1800)]
         public async Task<IActionResult> Get(string email)
         {
             var profile = await _userProfileService.GetGravatarProfileAsync(email);

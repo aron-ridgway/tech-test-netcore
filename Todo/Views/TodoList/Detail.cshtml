@@ -1,11 +1,18 @@
-﻿@using Todo.Controllers
+﻿@using Microsoft.AspNetCore.Identity
+@using Todo.Controllers
 @using Todo.Data.Entities
 @using Todo.Services
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
 @inject IUserProfileService UserProfileService
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
+
+    var iu = await UserManager.GetUserAsync(User);
+    var emailAddress = await UserManager.GetEmailAsync(iu);
+    ViewData["DisplayName"] = await UserProfileService.GetUserName(emailAddress);
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -67,17 +74,8 @@
 
                 <div class="col-md-4 text-right">
                     <small>
-                        @{
-                            var displayName = await UserProfileService.GetUserName(@item.ResponsibleParty.Email);
-                            if (!string.IsNullOrEmpty(displayName))
-                            {
-                                <text>@item.ResponsibleParty.Email - @displayName</text>
-                            }
-                            else
-                            {
-                                <text>@item.ResponsibleParty.Email</text>
-                            }
-                        }
+                        @item.ResponsibleParty.Email
+                        @ViewData["DisplayName"]
 
                         <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
 
