@@ -2,6 +2,7 @@
 @using Todo.Data.Entities
 @using Todo.Services
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
+@inject IUserProfileService UserProfileService
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
@@ -66,7 +67,17 @@
 
                 <div class="col-md-4 text-right">
                     <small>
-                        @item.ResponsibleParty.UserName
+                        @{
+                            var displayName = await UserProfileService.GetUserName(@item.ResponsibleParty.Email);
+                            if (!string.IsNullOrEmpty(displayName))
+                            {
+                                <text>@item.ResponsibleParty.Email - @displayName</text>
+                            }
+                            else
+                            {
+                                <text>@item.ResponsibleParty.Email</text>
+                            }
+                        }
 
                         <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
 

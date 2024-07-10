@@ -8,6 +8,8 @@ using Todo.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Todo.Models;
+using Todo.Services;
 
 namespace Todo
 {
@@ -37,7 +39,13 @@ namespace Todo
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.Configure<ToDoApiOptions>(Configuration.GetSection("ToDoApi"));
+
             services.AddControllers();
+
+            services.AddHttpClient();
+
+            services.AddScoped<IUserProfileService, UserProfileService>();
 
             services.AddAuthorization(options =>
             {
@@ -68,6 +76,8 @@ namespace Todo
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCors(app => app.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
 
             app.UseEndpoints(endpoints =>
             {
