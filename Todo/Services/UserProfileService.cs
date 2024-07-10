@@ -22,12 +22,19 @@ namespace Todo.Services
             var client = _httpClientFactory.CreateClient();
             var profile = new UserProfile();
 
-            var response = await client.GetAsync($"{_options.Value.UserProfileUrl}?email={email}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var json = await response.Content.ReadAsStringAsync();
-                profile = JsonSerializer.Deserialize<UserProfile>(json);
+                var response = await client.GetAsync($"{_options.Value.UserProfileUrl}?email={email}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    profile = JsonSerializer.Deserialize<UserProfile>(json);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                //log there is something wrong with our internal api
             }
 
             return profile.DisplayName;
