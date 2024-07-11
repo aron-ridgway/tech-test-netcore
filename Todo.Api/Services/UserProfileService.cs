@@ -76,8 +76,8 @@ namespace Todo.Api.Services
                 .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
                 .Or<TimeoutRejectedException>()
                 .WaitAndRetryAsync(
-                    retryCount: 3,
-                    sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    retryCount: 1,
+                    sleepDurationProvider: retryAttempt => TimeSpan.FromMilliseconds(200),
                     onRetry: (exception, retryCount, context) =>
                     {
                         //log an error

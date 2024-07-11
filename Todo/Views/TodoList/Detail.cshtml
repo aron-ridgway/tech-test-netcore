@@ -1,18 +1,21 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Todo.Controllers
+@using Todo.Data
 @using Todo.Data.Entities
 @using Todo.Services
+@using Todo.Views.TodoItem
 @model Todo.Models.TodoLists.TodoListDetailViewmodel
 @inject IUserProfileService UserProfileService
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext dbContext;
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
 
     var iu = await UserManager.GetUserAsync(User);
     var emailAddress = await UserManager.GetEmailAsync(iu);
-    ViewData["DisplayName"] = await UserProfileService.GetUserName(emailAddress);
+    //ViewData["DisplayName"] = await UserProfileService.GetUserName(emailAddress);
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -31,12 +34,6 @@
     </form>
 
     <ul class="list-group">
-        
-        <li class="list-group-item">
-            <a asp-action="Create" asp-controller="TodoItem" asp-route-todoListId="@Model.TodoListId">
-                <strong>Add New Item</strong>
-            </a>
-        </li>
 
         @foreach (var item in Model.Items)
         {
@@ -75,7 +72,10 @@
                 <div class="col-md-4 text-right">
                     <small>
                         @item.ResponsibleParty.Email
-                        @ViewData["DisplayName"]
+                        @{
+                            var username = await UserProfileService.GetUserName(@item.ResponsibleParty.Email);
+                            <text>@username</text>
+                        }
 
                         <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
 
@@ -87,3 +87,39 @@
         }
     </ul>
 </div>
+<div class="col-md-6">
+
+    <h2>Create New Item</h2>
+
+    <form id="addItemForm">
+        @Html.Hidden("TodoListTitle", Model.Title, new { id = "TodoListTitle" })
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.TodoListId)
+
+        <div class="form-group">
+            <input type="text" id="Title" name="Title" placeholder="Item Name" required />
+        </div>
+
+        <div class="form-group">
+            @Html.DropDownList(
+                     "Importance",
+                     SelectListConvenience.ImportanceSelectListItems,
+                     new { required = "required" })
+        </div>
+
+        <div class="form-group">
+            @Html.DropDownList(
+                     "ResponsiblePartyId",
+                     dbContext.UserSelectListItems(),
+                     "Responsible Party",
+                     new { required = "required" })
+        </div>
+
+        <div class="form-group">
+            <button type="submit">Add</button>
+        </div>
+    </form>
+
+</div>
+
+
