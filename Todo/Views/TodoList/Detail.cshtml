@@ -12,28 +12,26 @@
 
 @{
     ViewData["Title"] = $"List: {Model.Title}";
-
-    var iu = await UserManager.GetUserAsync(User);
-    var emailAddress = await UserManager.GetEmailAsync(iu);
-    //ViewData["DisplayName"] = await UserProfileService.GetUserName(emailAddress);
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<div class="col-md-6">
+<div class="col-md-9">
+    <div class="d-inline-block">
+        @* These would be better as an ajax call or client side filtering/sorting with javascript *@
+        <form method="get" asp-controller="TodoList" asp-action="Detail">
+            <input type="checkbox" id="hideDone" name="hideDone" value="true" data-val="true" @(Model.HideDone ? "checked" : "") onchange="this.form.submit()" />
+            <label for="hideDone">Hide Done Items</label>
 
-    @* These would be better as an ajax call or client side filtering/sorting with javascript *@
-    <form method="get" asp-controller="TodoList" asp-action="Detail">
-        <input type="checkbox" id="hideDone" name="hideDone" value="true" data-val="true" @(Model.HideDone ? "checked" : "") onchange="this.form.submit()" />
-        <label for="hideDone">Hide Done Items</label>
+            <input type="checkbox" id="sortByRank" name="sortByRank" value="true" data-val="true" @(Model.SortByRank ? "checked" : "") onchange="this.form.submit()" />
+            <label for="sortByRank">Sort By Rank (Server Side)</label>
 
-        <input type="checkbox" id="sortByRank" name="sortByRank" value="true" data-val="true" @(Model.SortByRank ? "checked" : "") onchange="this.form.submit()" />
-        <label for="sortByRank">Sort By Rank</label>
+            <input name="TodoListId" type="hidden" value="@Model.TodoListId">
 
-        <input name="TodoListId" type="hidden" value="@Model.TodoListId">
-    </form>
-
-    <ul class="list-group">
+            <input class="btn btn-primary" type="button" id="sortByRankJs" name="sortByRankJs" onclick="sortListByRank()" value="Sort By Rank Using Javascript ASC" />
+        </form>
+    </div>
+    <ul id="itemList" class="list-group">
 
         @foreach (var item in Model.Items)
         {
@@ -51,8 +49,8 @@
                     break;
             }
 
-            <li class="list-group-item @contextualClass">
-                
+            <li data-rank=@item.Rank class="list-group-item @contextualClass">
+
                 <div class="row">
 
                 <div class="col-md-8">
@@ -69,12 +67,15 @@
                     </a>
                 </div>
 
-                <div class="col-md-4 text-right">
+                <div class="col text-right">
                     <small>
                         @item.ResponsibleParty.Email
-                        @{
-                            var username = await UserProfileService.GetUserName(@item.ResponsibleParty.Email);
-                            <text>@username</text>
+                            @{
+                                var username = await UserProfileService.GetUserName(@item.ResponsibleParty.Email);
+                                if (!string.IsNullOrEmpty(username))
+                                {
+                                    <text> - @username</text>
+                                }
                         }
 
                         <img src="https://www.gravatar.com/avatar/@Gravatar.GetHash(item.ResponsibleParty.Email)?s=30"/>
@@ -87,7 +88,7 @@
         }
     </ul>
 </div>
-<div class="col-md-6">
+<div class="col-md-3">
 
     <h2>Create New Item</h2>
 
@@ -121,5 +122,22 @@
     </form>
 
 </div>
+
+<script>
+    function sortListByRank(e){
+        var list = document.getElementById("itemList");
+        const items = Array.from(list.getElementsByTagName('li'));
+
+        items.sort((a, b) => {
+            return a.getAttribute('data-rank') - b.getAttribute('data-rank');
+        });
+
+        list.innerHTML = '';
+
+        items.forEach(item => {
+            list.appendChild(item);
+        });
+    }
+</script>
 
 
